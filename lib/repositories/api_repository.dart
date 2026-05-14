@@ -19,7 +19,6 @@ class ApiRepository {
     };
   }
 
-  // --- CRUDS KATALOG ---
 
   // Ditambahkan fitur menerima parameter query untuk Search
   Future<List<KatalogModel>> getKatalog({String query = ''}) async {

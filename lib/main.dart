@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'repositories/api_repository.dart';
 import 'repositories/auth_repository.dart'; 
-import 'services/token_service.dart'; // <-- 1. WAJIB IMPORT INI
+import 'services/token_service.dart'; 
 import 'bloc/katalog/katalog_bloc.dart';
 import 'bloc/katalog/katalog_event.dart';
 import 'bloc/auth/auth_bloc.dart'; 
 import 'screens/auth/login_screen.dart';
 
-void main() {
+// 1. UBAH main() MENJADI async
+void main() async {
+  // 2. TAMBAHKAN MANTRA INI WAJIB!
+  WidgetsFlutterBinding.ensureInitialized(); 
+
   runApp(const DriveEaseApp());
 }
 
@@ -23,10 +27,9 @@ class DriveEaseApp extends StatelessWidget {
           create: (context) => KatalogBloc(apiRepository: ApiRepository())..add(FetchKatalog()),
         ),
         BlocProvider<AuthBloc>(
-          // 2. TAMBAHKAN TOKEN SERVICE DI SINI
           create: (context) => AuthBloc(
             authRepository: AuthRepository(),
-            tokenService: TokenService(), // <-- Pemicu error-nya ada di sini tadi
+            tokenService: TokenService(), 
           ),
         ),
       ],

@@ -1,34 +1,42 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../utils/constants.dart';
-import '../services/token_service.dart'; // Wajib import ini
 
 class AuthRepository {
-  final TokenService _tokenService = TokenService(); // Panggil alat penyimpannya
+  // Pastikan URL-nya sudah benar sesuai jaringanmu
+  final String baseUrl = 'http://10.0.2.2:3000/api/auth'; 
 
+  // Fungsi Login
   Future<Map<String, dynamic>> login(String email, String password) async {
-    final response = await http.post(
-      Uri.parse('${AppConstants.baseUrl}/login'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: jsonEncode({
-        'email': email,
-        'password': password,
-      }),
-    );
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': email,
+          'password': password,
+        }),
+      );
+      return jsonDecode(response.body);
+    } catch (e) {
+      throw Exception('Gagal menyambung ke jaringan: $e');
+    }
+  }
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      
-      // INI YANG PALING PENTING: Simpan tokennya ke HP!
-      await _tokenService.saveToken(data['token']); 
-      
-      return data;
-    } else {
-      final errorData = jsonDecode(response.body);
-      throw Exception(errorData['message'] ?? 'Login Gagal');
+  // Fungsi Register 
+  Future<Map<String, dynamic>> register(String name, String email, String password) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/register'), 
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'nama': name,
+          'email': email,
+          'password': password,
+        }),
+      );
+      return jsonDecode(response.body);
+    } catch (e) {
+      throw Exception('Gagal menyambung ke jaringan: $e');
     }
   }
 }

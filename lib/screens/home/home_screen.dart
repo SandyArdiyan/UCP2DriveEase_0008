@@ -16,8 +16,24 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
+  String _userName = "Pengguna"; // Nama default sebelum data ditarik
 
-  // Fungsi Logout: Hapus token dari HP dan kembali ke halaman Login
+  @override
+  void initState() {
+    super.initState();
+    _loadUserName(); // Tarik nama saat layar pertama kali dibuka
+  }
+
+  // Fungsi mengambil nama dari memory HP
+  void _loadUserName() async {
+    final name = await TokenService().getName();
+    if (name != null && name.isNotEmpty) {
+      setState(() {
+        _userName = name;
+      });
+    }
+  }
+
   void _logout() async {
     await TokenService().removeToken();
     if (!mounted) return;
@@ -32,7 +48,14 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Katalog DriveEase'),
+        // PERSONALIASASI BERANDA (Menyapa Nama User)
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Katalog DriveEase', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text('Selamat Datang, $_userName!', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.normal)),
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -43,13 +66,12 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.red),
-            onPressed: _logout, // Memanggil fungsi logout di atas
+            onPressed: _logout,
           ),
         ],
       ),
       body: Column(
         children: [
-          // KOTAK PENCARIAN (Fitur Search)
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(
@@ -72,13 +94,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               onChanged: (value) {
-                // Memanggil Node.js setiap kali user mengetik
                 context.read<KatalogBloc>().add(FetchKatalog(query: value));
               },
             ),
           ),
-
-          // DAFTAR ARMADA
           Expanded(
             child: BlocBuilder<KatalogBloc, KatalogState>(
               builder: (context, state) {
@@ -116,15 +135,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             backgroundColor: Colors.deepPurple.shade50,
                             child: const Icon(Icons.directions_car, color: Colors.deepPurple),
                           ),
-                          title: Text(
-                            item.namaArmada, 
-                            style: const TextStyle(fontWeight: FontWeight.bold)
-                          ),
-                          subtitle: Text('Plat: ${item.platNomor} | ID Kategori: ${item.idKategori}'),
+                          title: Text(item.namaArmada, style: const TextStyle(fontWeight: FontWeight.bold)),
+                          subtitle: Text('Plat: ${item.platNomor} | Kategori: ${item.idKategori}'),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              // Tombol Edit
                               IconButton(
                                 icon: const Icon(Icons.edit, color: Colors.blue),
                                 onPressed: () {
@@ -143,7 +158,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                   );
                                 },
                               ),
-                              // Tombol Hapus
                               IconButton(
                                 icon: const Icon(Icons.delete, color: Colors.red),
                                 onPressed: () {

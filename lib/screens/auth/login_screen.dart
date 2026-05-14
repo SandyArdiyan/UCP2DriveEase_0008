@@ -3,9 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../bloc/auth/auth_bloc.dart';
 import '../../bloc/auth/auth_event.dart';
 import '../../bloc/auth/auth_state.dart';
+import '../home/home_screen.dart';
 import '../shared/custom_button.dart';
 import '../shared/custom_input.dart';
-import '../home/home_screen.dart';
+import 'register_screen.dart'; 
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,12 +18,10 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('DriveEase Login')),
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
@@ -32,54 +31,78 @@ class _LoginScreenState extends State<LoginScreen> {
             );
           } else if (state is AuthError) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
+              SnackBar(content: Text(state.message), backgroundColor: Colors.red),
             );
           }
         },
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
+        // INI DIA SOLUSINYA: Dibungkus dengan Center & SingleChildScrollView
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(20.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                const Icon(Icons.directions_car, size: 80, color: Colors.deepPurple),
+                const SizedBox(height: 20),
                 const Text(
-                  'Selamat Datang di DriveEase',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  'DriveEase',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.deepPurple),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 40),
+                
                 CustomInput(
                   controller: _emailController,
                   label: 'Email',
-                  prefixIcon: Icons.email,
-                  validator: (value) => value!.isEmpty ? 'Email wajib diisi' : null,
                 ),
                 const SizedBox(height: 16),
                 CustomInput(
                   controller: _passwordController,
                   label: 'Password',
-                  prefixIcon: Icons.lock,
                   isPassword: true,
-                  validator: (value) => value!.isEmpty ? 'Password wajib diisi' : null,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 32),
+                
                 BlocBuilder<AuthBloc, AuthState>(
                   builder: (context, state) {
+                    if (state is AuthLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
                     return CustomButton(
                       text: 'LOGIN',
-                      isLoading: state is AuthLoading,
                       onPressed: () {
-                        if (_formKey.currentState!.validate()) {
+                        if (_emailController.text.isNotEmpty && _passwordController.text.isNotEmpty) {
+                          // Memakai nama Event asli milikmu (LoginButtonPressed)
                           context.read<AuthBloc>().add(
                             LoginButtonPressed(
-                              email: _emailController.text,
-                              password: _passwordController.text,
+                              email: _emailController.text, 
+                              password: _passwordController.text
                             ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Email dan Password wajib diisi!')),
                           );
                         }
                       },
                     );
                   },
+                ),
+                
+                const SizedBox(height: 16),
+                
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const RegisterScreen()),
+                    );
+                  },
+                  child: const Text(
+                    "Belum punya akun? Daftar di sini",
+                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.deepPurple),
+                  ),
                 ),
               ],
             ),
