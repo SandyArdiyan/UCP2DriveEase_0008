@@ -22,7 +22,7 @@ const kategoriRoutes = require('./routes/kategoriRoutes');
 // ---------------------------------------------------------
 // MENDAFTARKAN ROUTES (Ini yang bikin 404 kalau terlewat)
 // ---------------------------------------------------------
-app.use('/api', authRoutes);              // Jalur untuk login
+app.use('/api/auth', authRoutes);              // Jalur untuk login
 app.use('/api/katalog', katalogRoutes);   // Jalur untuk GET, POST, PUT, DELETE Katalog
 app.use('/api/kategori', kategoriRoutes); // Jalur untuk GET, POST, PUT, DELETE Kategori
 
